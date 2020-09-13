@@ -1,0 +1,20 @@
+--- !ruby/object:Game
+turn: 8
+secret_word: salvager
+hidden_word:
+- s
+- a
+- _
+- v
+- a
+- _
+- _
+- _
+used_letters:
+- w
+- s
+- t
+- u
+- v
+- a
+- salvator

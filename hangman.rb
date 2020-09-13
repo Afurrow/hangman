@@ -1,5 +1,5 @@
 class Game
-  @@turn = 0
+  attr_reader :turn, :secret_word, :hidden_word, :used_letters
 
   def initialize
     @turn = 1
@@ -23,25 +23,28 @@ class Game
   end
 
   def GetGuess
-    puts @secret_word.downcase
     return Gameover(true) unless @hidden_word.include?("_")
     return Gameover() if @turn > 8
     Display()
-    puts "Please guess a letter or the full word. To save type (Save)."
+    puts "Please guess a letter or the full word. You can also Save or Load."
     user_guess = gets.chomp.downcase
 
     if user_guess == "save"
       SaveState()
+    elsif user_guess == "load"
+      LoadState()
     elsif user_guess.length > 1
+      @used_letters << user_guess
+      @turn += 1
       return Gameover(true) if user_guess == @secret_word.downcase
     else 
       @secret_word.split("").each_with_index do |x, i| 
         @hidden_word[i] = @secret_word[i] if x.downcase == user_guess
       end
+      @used_letters << user_guess
+      @turn += 1
     end
 
-    @used_letters << user_guess
-    @turn += 1
     GetGuess()
   end
 
@@ -58,9 +61,23 @@ class Game
   end
 
   def SaveState
-    require 'json'
-    save_file = File.open("saved_state.txt", "w")
-    File.write(save_file, JSON.dump(self));
+    require 'yaml'
+    save_file = File.open("saved_state.yml", "w")
+    File.write(save_file, YAML.dump(self));
+  end
+
+  def LoadState
+    require 'yaml'
+
+    if File.exists?("saved_state.yml")
+      yaml_contents = YAML.load(File.read("saved_state.yml"))
+      @turn = yaml_contents.turn
+      @secret_word = yaml_contents.secret_word
+      @hidden_word = yaml_contents.hidden_word     
+      @used_letters = yaml_contents.used_letters
+    else 
+      puts "No saved state to load."
+    end
   end
 
 end
